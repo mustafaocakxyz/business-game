@@ -1,14 +1,7 @@
 # Business Game
-
 A simple choice-based business management game where you balance four core values: Money, Employee Satisfaction, Client Satisfaction, and Government Relations.
 
-## How to Play
-
-1. **Start the Game**: Open `index.html` in any modern web browser
-2. **Make Decisions**: You'll be presented with business scenarios and two choices
-3. **Balance Values**: Each choice affects your four core values differently
-4. **Stay Alive**: If any value reaches 0%, you go broke and the game ends
-5. **Win**: Successfully complete all scenarios to win!
+<img width="1468" height="983" alt="Screenshot 2025-08-03 at 19 30 39" src="https://github.com/user-attachments/assets/81f4aca3-4797-4854-8ea9-7352cc126614" />
 
 ## Game Features
 
