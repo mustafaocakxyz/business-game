@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Business Game</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .game-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            padding: 40px;
+            max-width: 800px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .game-title {
+            font-size: 2.5rem;
+            color: #333;
+            margin-bottom: 30px;
+            font-weight: bold;
+        }
+
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-bottom: 40px;
+        }
+
+        .stat-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 15px;
+            border: 2px solid #e9ecef;
+            transition: all 0.3s ease;
+            aspect-ratio: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .stat-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .stat-icon {
+            font-size: 1.5rem;
+            margin-bottom: 8px;
+        }
+
+        .decision-card {
+            background: #fff;
+            border: 3px solid #007bff;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 25px rgba(0,123,255,0.1);
+        }
+
+        .decision-image {
+            width: 200px;
+            height: 150px;
+            background: #e9ecef;
+            border-radius: 10px;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            color: #666;
+        }
+
+        .decision-text {
+            font-size: 1.2rem;
+            color: #333;
+            line-height: 1.6;
+            margin-bottom: 25px;
+        }
+
+        .choices-container {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .choice-btn {
+            padding: 15px 30px;
+            font-size: 1.1rem;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            min-width: 150px;
+        }
+
+        .choice-btn.primary {
+            background: #007bff;
+            color: white;
+        }
+
+        .choice-btn.secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .choice-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .game-over {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .game-over-content {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            max-width: 500px;
+        }
+
+        .game-over h2 {
+            color: #dc3545;
+            font-size: 2rem;
+            margin-bottom: 20px;
+        }
+
+        .restart-btn {
+            background: #28a745;
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e9ecef;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            transition: width 0.5s ease;
+        }
+
+        .money .progress-fill { background: #28a745; }
+        .employees .progress-fill { background: #ffc107; }
+        .clients .progress-fill { background: #17a2b8; }
+        .government .progress-fill { background: #6f42c1; }
+
+        @media (max-width: 600px) {
+            .game-container {
+                padding: 20px;
+            }
+            
+            .stats-container {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .choices-container {
+                flex-direction: column;
+            }
+            
+            .choice-btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1 class="game-title">Business Game</h1>
+        
+        <div class="stats-container">
+            <div class="stat-item money">
+                <div class="stat-icon">💰</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="money-progress" style="width: 50%"></div>
+                </div>
+            </div>
+            
+            <div class="stat-item employees">
+                <div class="stat-icon">👥</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="employees-progress" style="width: 50%"></div>
+                </div>
+            </div>
+            
+            <div class="stat-item clients">
+                <div class="stat-icon">🤝</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="clients-progress" style="width: 50%"></div>
+                </div>
+            </div>
+            
+            <div class="stat-item government">
+                <div class="stat-icon">🏛️</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="government-progress" style="width: 50%"></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="decision-card">
+            <div class="decision-image" id="decision-image">📋</div>
+            <div class="decision-text" id="decision-text">Welcome to your business empire! Make wise decisions to keep your company thriving.</div>
+            <div class="choices-container">
+                <button class="choice-btn primary" id="choice-1">Start Game</button>
+                <button class="choice-btn secondary" id="choice-2" style="display: none;">Choice 2</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="game-over" id="game-over">
+        <div class="game-over-content">
+            <h2>Game Over!</h2>
+            <p id="game-over-text">You went broke! Better luck next time.</p>
+            <button class="restart-btn" onclick="restartGame()">Play Again</button>
+        </div>
+    </div>
+
+    <script>
+        // Game state
+        let gameState = {
+            money: 50,
+            employees: 50,
+            clients: 50,
+            government: 50,
+            currentDecision: 0
+        };
+
+        // Decision cards data
+        const decisions = [
+            {
+                image: "💼",
+                text: "A major client wants you to cut employee benefits to reduce costs. What do you do?",
+                choice1: "Cut benefits to keep the client",
+                choice2: "Keep benefits, risk losing the client",
+                effects1: { money: 10, employees: -15, clients: 5, government: 0 },
+                effects2: { money: -10, employees: 10, clients: -15, government: 0 }
+            },
+            {
+                image: "📊",
+                text: "Government is offering tax incentives for companies that hire more workers. Should you expand?",
+                choice1: "Hire more workers",
+                choice2: "Keep current staff",
+                effects1: { money: -5, employees: 15, clients: 5, government: 10 },
+                effects2: { money: 5, employees: -5, clients: 0, government: -5 }
+            },
+            {
+                image: "🔥",
+                text: "Your main competitor is struggling. Should you try to acquire their clients?",
+                choice1: "Aggressively pursue their clients",
+                choice2: "Focus on your own business",
+                effects1: { money: -10, employees: -5, clients: 20, government: -5 },
+                effects2: { money: 5, employees: 5, clients: -5, government: 5 }
+            },
+            {
+                image: "🎯",
+                text: "Employees are asking for a raise. The company can afford it, but it will impact profits.",
+                choice1: "Give the raise",
+                choice2: "Decline the raise",
+                effects1: { money: -15, employees: 20, clients: 0, government: 0 },
+                effects2: { money: 10, employees: -20, clients: -5, government: 0 }
+            },
+            {
+                image: "🏢",
+                text: "Government is considering new regulations that could affect your industry. Should you lobby against them?",
+                choice1: "Lobby against regulations",
+                choice2: "Support the regulations",
+                effects1: { money: -10, employees: 0, clients: 0, government: -15 },
+                effects2: { money: -5, employees: 5, clients: 5, government: 15 }
+            },
+            {
+                image: "💡",
+                text: "A new technology could revolutionize your business, but it requires significant investment.",
+                choice1: "Invest in the technology",
+                choice2: "Wait and see",
+                effects1: { money: -20, employees: 10, clients: 15, government: 5 },
+                effects2: { money: 5, employees: -5, clients: -10, government: 0 }
+            },
+            {
+                image: "🌍",
+                text: "Environmental groups are pressuring your company to go green. This will be expensive but good for PR.",
+                choice1: "Go green",
+                choice2: "Ignore the pressure",
+                effects1: { money: -15, employees: 5, clients: 10, government: 10 },
+                effects2: { money: 5, employees: 0, clients: -10, government: -10 }
+            },
+            {
+                image: "📈",
+                text: "Your company is doing well and you have extra cash. How should you use it?",
+                choice1: "Give bonuses to employees",
+                choice2: "Invest in expansion",
+                effects1: { money: -10, employees: 20, clients: 5, government: 0 },
+                effects2: { money: 5, employees: -5, clients: 15, government: 5 }
+            }
+        ];
+
+        // Initialize game
+        function initGame() {
+            updateDisplay();
+            showDecision(0);
+        }
+
+        // Update the display with current values
+        function updateDisplay() {
+            document.getElementById('money-progress').style.width = gameState.money + '%';
+            document.getElementById('employees-progress').style.width = gameState.employees + '%';
+            document.getElementById('clients-progress').style.width = gameState.clients + '%';
+            document.getElementById('government-progress').style.width = gameState.government + '%';
+        }
+
+        // Show a decision card
+        function showDecision(index) {
+            if (index >= decisions.length) {
+                // Game won! (optional - you can add a win condition)
+                showGameOver("Congratulations! You've successfully managed your business!");
+                return;
+            }
+
+            const decision = decisions[index];
+            document.getElementById('decision-image').textContent = decision.image;
+            document.getElementById('decision-text').textContent = decision.text;
+            document.getElementById('choice-1').textContent = decision.choice1;
+            document.getElementById('choice-2').textContent = decision.choice2;
+            document.getElementById('choice-2').style.display = 'inline-block';
+            
+            gameState.currentDecision = index;
+        }
+
+        // Apply effects from a choice
+        function applyEffects(effects) {
+            gameState.money = Math.max(0, Math.min(100, gameState.money + effects.money));
+            gameState.employees = Math.max(0, Math.min(100, gameState.employees + effects.employees));
+            gameState.clients = Math.max(0, Math.min(100, gameState.clients + effects.clients));
+            gameState.government = Math.max(0, Math.min(100, gameState.government + effects.government));
+            
+            updateDisplay();
+            
+            // Check if any value is 0 (game over)
+            if (gameState.money === 0 || gameState.employees === 0 || 
+                gameState.clients === 0 || gameState.government === 0) {
+                showGameOver("You went broke! One of your core values reached zero.");
+                return;
+            }
+            
+            // Show next decision
+            setTimeout(() => {
+                showDecision(gameState.currentDecision + 1);
+            }, 1000);
+        }
+
+        // Show game over screen
+        function showGameOver(message) {
+            document.getElementById('game-over-text').textContent = message;
+            document.getElementById('game-over').style.display = 'flex';
+        }
+
+        // Restart game
+        function restartGame() {
+            gameState = {
+                money: 50,
+                employees: 50,
+                clients: 50,
+                government: 50,
+                currentDecision: 0
+            };
+            document.getElementById('game-over').style.display = 'none';
+            initGame();
+        }
+
+        // Event listeners
+        document.getElementById('choice-1').addEventListener('click', function() {
+            if (gameState.currentDecision === 0) {
+                // First click starts the game
+                showDecision(0);
+            } else {
+                // Apply effects for choice 1
+                const decision = decisions[gameState.currentDecision];
+                applyEffects(decision.effects1);
+            }
+        });
+
+        document.getElementById('choice-2').addEventListener('click', function() {
+            // Apply effects for choice 2
+            const decision = decisions[gameState.currentDecision];
+            applyEffects(decision.effects2);
+        });
+
+        // Initialize the game when page loads
+        window.addEventListener('load', initGame);
+    </script>
+</body>
+</html> 
